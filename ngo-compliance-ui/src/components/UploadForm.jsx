@@ -71,11 +71,11 @@ const UploadForm = ({
         fileContent = await file.text();
       } else if (
         file.type ===
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-      ) {
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"      ) {
         // For DOCX files, we'll read as text for now
         // You might want to use a library like mammoth.js for better extraction
-        fileContent = await file.text();      } else {
+        fileContent = await file.text();
+      } else {
         throw new Error(
           "Unsupported file type. Please upload a PDF, TXT, or DOCX file."
         );
@@ -104,11 +104,11 @@ const UploadForm = ({
           policy_document: base64Content,
           country: country,
         }),
-      });
-
-      if (!response.ok) {
+      });      if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
-      }      const result = await response.json();
+      }
+      
+      const result = await response.json();
       onAnalysisSuccess(result, country);
     } catch (error) {
       console.error("Analysis error:", error);
@@ -117,33 +117,7 @@ const UploadForm = ({
       );
     }
   };
-
   return (
-<<<<<<< Updated upstream
-    <Card sx={{ minWidth: 275, maxWidth: 600, boxShadow: 3 }}>
-        <CardContent>
-            <Typography variant="h5" component="div" gutterBottom>Start Your Compliance Check</Typography>
-            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                <FormControl fullWidth sx={{ mb: 2 }}>
-                    <InputLabel id="country-select-label">Select Country/Region</InputLabel>
-                    <Select labelId="country-select-label" id="country-select" value={country} label="Select Country/Region" onChange={handleCountryChange}>
-                        <MenuItem value="IN">India</MenuItem>
-                        <MenuItem value="US">United States</MenuItem>
-                        <MenuItem value="EU">European Union</MenuItem>
-                        <MenuItem value="UK">United Kingdom</MenuItem>
-                        <MenuItem value="SG">Singapore</MenuItem>
-                    </Select>
-                </FormControl>
-                <Button variant="outlined" component="label" fullWidth startIcon={<MdUploadFile />} sx={{ mb: 2, p: 2 }}>
-                    {file ? file.name : 'Choose Policy File(s) (.zip, .pdf, .docx, .txt)'}
-                    <input type="file" hidden onChange={handleFileChange} />
-                </Button>
-                <Button type="submit" fullWidth variant="contained" disabled={!file} sx={{ p: 1.5, fontWeight: 'bold' }}>
-                    Analyze Now
-                </Button>
-            </Box>
-        </CardContent>
-=======
     <Card
       sx={{
         minWidth: 340,
@@ -295,7 +269,6 @@ const UploadForm = ({
           </Button>
         </Box>
       </CardContent>
->>>>>>> Stashed changes
     </Card>
   );
 };

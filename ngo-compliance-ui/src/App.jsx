@@ -152,34 +152,3 @@ function App() {
 }
 
 export default App;
-                          Analyzing your documents... This may take a moment.
-                        </Typography>
-                      </Box>
-                    ) : (
-                      <>
-                        <Box display="flex" justifyContent="center" sx={{ mt: 4 }}>
-                          <UploadForm
-                            onAnalysisStart={handleAnalysisStart}
-                            onAnalysisSuccess={handleAnalysisSuccess}
-                            onAnalysisError={handleAnalysisError}
-                          />
-                        </Box>
-                        <AboutApp />
-                      </>
-                    )}
-                  </Box>                ) : (
-                  <ComplianceDashboard result={analysisResult} onReset={handleReset} country={selectedCountry} />
->>>>>>> Stashed changes
-                )}
-              </Box>
-            ) : (
-              <ComplianceDashboard result={analysisResult} onReset={handleReset} />
-            )}
-          </Container>
-        </Box>
-      </Box>
-    </ThemeProvider>
-  );
-}
-
-export default App;

@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { Box, Typography, Grid, Card, CardContent, Chip, Button, Paper, Tabs, Tab, Avatar, Tooltip } from '@mui/material';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip as RechartsTooltip } from 'recharts';
-import { 
-    MdCheckCircle, 
-    MdWarning, 
-    MdError, 
-    MdHelpOutline, 
-    MdReplay, 
-    MdCalendarToday, 
-    MdAssessment, 
-    MdGavel, 
-    MdCorporateFare 
+import { Avatar, Box, Button, Card, CardContent, Chip, Grid, Paper, Tab, Tabs, Typography } from '@mui/material';
+import { useState } from 'react';
+import {
+    MdAssessment,
+    MdCalendarToday,
+    MdCheckCircle,
+    MdCorporateFare,
+    MdError,
+    MdGavel,
+    MdHelpOutline,
+    MdReplay,
+    MdWarning
 } from 'react-icons/md';
+import { Cell, Legend, Pie, PieChart, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
 // MOCK DATA
 const mockDashboardData = {
@@ -23,21 +23,17 @@ const mockDashboardData = {
     ]
 };
 
-const COLORS = { 
-  'Covered': '#2e7d32', 
-  'Partially Covered': '#ed6c02', 
-  'Missing': '#d32f2f', 
-  'Not Addressed': '#616161' 
-};
+const COLORS = { 'Compliant': '#2e7d32', 'Partial': '#ed6c02', 'Non-compliant': '#d32f2f', 'Not Addressed': '#616161' };
 
 const getStatusChip = (status) => {
+  const statusLower = status ? status.toLowerCase() : '';
   let icon, color;
-  switch (status) {
-    case 'Covered':
+  switch (statusLower) {
+    case 'compliant':
       icon = <MdCheckCircle />; color = 'success'; break;
-    case 'Partially Covered':
+    case 'partial':
       icon = <MdWarning />; color = 'warning'; break;
-    case 'Missing':
+    case 'non-compliant':
       icon = <MdError />; color = 'error'; break;
     default:
       icon = <MdHelpOutline />; color = 'default';
@@ -45,22 +41,9 @@ const getStatusChip = (status) => {
   return <Chip icon={icon} label={status || 'Not Addressed'} color={color} size="small" variant="outlined" />;
 };
 
-const ComplianceDashboard = ({ result, onReset, country }) => {
+const ComplianceDashboard = ({ result, onReset }) => {
     const [tabIndex, setTabIndex] = useState(0);
     const handleTabChange = (event, newValue) => setTabIndex(newValue);
-    
-    // Get NGO type based on country
-    const getNgoType = (countryCode) => {
-        const ngoTypes = {
-            'IN': 'NGO registered under FCRA (India)',
-            'US': 'Non-Profit Organization (501c3)',
-            'EU': 'European Non-Governmental Organization', 
-            'UK': 'Registered Charity (UK)',
-            'SG': 'Institution of Public Character (Singapore)'
-        };
-        return ngoTypes[countryCode] || 'Non-Governmental Organization';
-    };
-    
     const statusCounts = result.compliance_breakdown.reduce((acc, item) => {
         acc[item.status] = (acc[item.status] || 0) + 1;
         return acc;
@@ -95,9 +78,10 @@ const ComplianceDashboard = ({ result, onReset, country }) => {
                                     <Typography variant="h5" gutterBottom>Executive Summary</Typography>
                                     <Typography variant="body1" sx={{ fontSize: '1.1rem' }}>{result.executive_summary}</Typography>
                                     <Box sx={{ mt: 4, display: 'flex', alignItems: 'center', p: 2, backgroundColor: '#f5f5f5', borderRadius: 2 }}>
-                                        <Avatar sx={{ bgcolor: 'primary.main', mr: 2, width: 56, height: 56 }}><MdCorporateFare size={32} /></Avatar>                                        <Box>
+                                        <Avatar sx={{ bgcolor: 'primary.main', mr: 2, width: 56, height: 56 }}><MdCorporateFare size={32} /></Avatar>
+                                        <Box>
                                             <Typography variant="body2" color="text.secondary">Identified NGO Type</Typography>
-                                            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>{getNgoType(country)}</Typography>
+                                            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>{mockDashboardData.ngo_type}</Typography>
                                         </Box>
                                     </Box>
                                 </CardContent>
@@ -119,34 +103,59 @@ const ComplianceDashboard = ({ result, onReset, country }) => {
                                 </CardContent>
                             </Card>
                         </Grid>
-                    </Grid>                </Box>
+                    </Grid>
+                </Box>
             )}
 
             {/* --- Tab 2: Clause Details --- */}
             {tabIndex === 1 && (
                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                    {result.compliance_breakdown.map((item, index) => (
-                        <Card key={index} variant="outlined" sx={{ boxShadow: 2 }}>
+                    {result.compliance_breakdown.map((item) => (
+                        <Card
+                            key={item.clause_id}
+                            variant="outlined"
+                            sx={{
+                                boxShadow: 3,
+                                background: 'var(--card-bg)',
+                                borderRadius: 'var(--border-radius)',
+                                border: '1px solid #262a40',
+                                color: 'var(--text-main)',
+                                backdropFilter: 'blur(8px)',
+                                transition: 'box-shadow 0.2s, border 0.2s, background 0.2s',
+                                '&:hover': {
+                                    boxShadow: '0 12px 36px 0 rgba(99, 102, 241, 0.18)',
+                                    border: '1.5px solid var(--accent)',
+                                    background: '#262a40',
+                                },
+                            }}
+                        >
                             <CardContent sx={{ p: 3 }}>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
-                                    <Typography variant="body2" color="text.secondary">Area: {item.area}</Typography>
+                                    <Typography variant="body2" sx={{ color: 'var(--text-muted)' }}>{item.clause_id}</Typography>
                                     {getStatusChip(item.status)}
                                 </Box>
-                                <Typography variant="h6" component="p" sx={{ mb: 2 }}>{item.area}</Typography>
-                                
-                                {/* Analysis Section */}
-                                <Box sx={{ p: 2, backgroundColor: '#f8f9fa', borderRadius: 1, mb: 2, borderLeft: '4px solid #6c757d' }}>
-                                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Analysis:</Typography>
-                                    <Typography variant="body2">{item.analysis}</Typography>
-                                </Box>
-
-                                {/* Recommendation Section - Only show if there's a meaningful recommendation */}
-                                {item.recommendation && item.recommendation.trim() && item.recommendation !== "None" && item.recommendation !== "null" && (
-                                    <Box sx={{ p: 2, backgroundColor: '#e3f2fd', borderRadius: 1, borderLeft: '4px solid #1976d2' }}>
-                                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>AI Recommendation:</Typography>
-                                        <Typography variant="body2">{item.recommendation}</Typography>
+                                <Typography variant="h6" component="p" sx={{ mb: 2, color: 'var(--text-main)' }}>{item.clause_text}</Typography>
+                                {item.evidence_in_policy && (
+                                    <Box sx={{
+                                        p: 2,
+                                        backgroundColor: 'rgba(46, 125, 50, 0.08)',
+                                        borderRadius: 1,
+                                        mb: 2,
+                                        borderLeft: `4px solid ${COLORS.Compliant}`
+                                    }}>
+                                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: 'var(--primary)' }}>Evidence Found in Policy:</Typography>
+                                        <Typography variant="body2" sx={{ fontStyle: 'italic', color: '#81c784' }}>"{item.evidence_in_policy}"</Typography>
                                     </Box>
                                 )}
+                                <Box sx={{
+                                    p: 2,
+                                    backgroundColor: 'rgba(56, 189, 248, 0.08)',
+                                    borderRadius: 1,
+                                    borderLeft: '4px solid var(--accent)'
+                                }}>
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: 'var(--accent)' }}>AI Recommendation:</Typography>
+                                    <Typography variant="body2" sx={{ color: 'var(--text-main)' }}>{item.recommendation}</Typography>
+                                </Box>
                             </CardContent>
                         </Card>
                     ))}

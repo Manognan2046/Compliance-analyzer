@@ -1,0 +1,182 @@
+import React, { useState } from 'react';
+import { Box, Typography, Grid, Card, CardContent, Chip, Button, Paper, Tabs, Tab, Avatar, Tooltip } from '@mui/material';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip as RechartsTooltip } from 'recharts';
+import { 
+    MdCheckCircle, 
+    MdWarning, 
+    MdError, 
+    MdHelpOutline, 
+    MdReplay, 
+    MdCalendarToday, 
+    MdAssessment, 
+    MdGavel, 
+    MdCorporateFare 
+} from 'react-icons/md';
+
+// MOCK DATA
+const mockDashboardData = {
+    ngo_type: "Public Charitable Trust",
+    deadlines: [
+        { date: "2025-07-31", event: "Annual Return Filing (FCRA)" },
+        { date: "2025-09-30", event: "Income Tax Return Filing" },
+        { date: "2025-12-15", event: "Advance Tax Payment" },
+    ]
+};
+
+const COLORS = { 
+  'Covered': '#2e7d32', 
+  'Partially Covered': '#ed6c02', 
+  'Missing': '#d32f2f', 
+  'Not Addressed': '#616161' 
+};
+
+const getStatusChip = (status) => {
+  let icon, color;
+  switch (status) {
+    case 'Covered':
+      icon = <MdCheckCircle />; color = 'success'; break;
+    case 'Partially Covered':
+      icon = <MdWarning />; color = 'warning'; break;
+    case 'Missing':
+      icon = <MdError />; color = 'error'; break;
+    default:
+      icon = <MdHelpOutline />; color = 'default';
+  }
+  return <Chip icon={icon} label={status || 'Not Addressed'} color={color} size="small" variant="outlined" />;
+};
+
+const ComplianceDashboard = ({ result, onReset, country }) => {
+    const [tabIndex, setTabIndex] = useState(0);
+    const handleTabChange = (event, newValue) => setTabIndex(newValue);
+    
+    // Get NGO type based on country
+    const getNgoType = (countryCode) => {
+        const ngoTypes = {
+            'IN': 'NGO registered under FCRA (India)',
+            'US': 'Non-Profit Organization (501c3)',
+            'EU': 'European Non-Governmental Organization', 
+            'UK': 'Registered Charity (UK)',
+            'SG': 'Institution of Public Character (Singapore)'
+        };
+        return ngoTypes[countryCode] || 'Non-Governmental Organization';
+    };
+    
+    const statusCounts = result.compliance_breakdown.reduce((acc, item) => {
+        acc[item.status] = (acc[item.status] || 0) + 1;
+        return acc;
+    }, {});
+    const pieChartData = Object.keys(statusCounts).map(status => ({
+        name: status,
+        value: statusCounts[status],
+    }));
+
+    return (
+        <Paper elevation={0} sx={{ p: { xs: 1, md: 3 }, backgroundColor: 'transparent' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', borderBottom: '1px solid #ddd', pb: 2 }}>
+                <Typography variant="h4" sx={{ mb: { xs: 2, md: 0 } }}>Compliance Analysis Report</Typography>
+                <Button variant="outlined" startIcon={<MdReplay />} onClick={onReset}>
+                    Analyze Another
+                </Button>
+            </Box>
+
+            <Tabs value={tabIndex} onChange={handleTabChange} indicatorColor="primary" textColor="primary" variant="fullWidth" sx={{ mb: 3 }}>
+                <Tab icon={<MdAssessment />} label="Overall Summary" />
+                <Tab icon={<MdGavel />} label="Clause Details" />
+                <Tab icon={<MdCalendarToday />} label="Compliance Calendar" />
+            </Tabs>
+
+            {/* --- Tab 1: Overall Summary --- */}
+            {tabIndex === 0 && (
+                <Box>
+                    <Grid container spacing={4}>
+                        <Grid item xs={12} lg={7}>
+                            <Card sx={{ height: '100%', boxShadow: 3 }}>
+                                <CardContent sx={{ p: 3 }}>
+                                    <Typography variant="h5" gutterBottom>Executive Summary</Typography>
+                                    <Typography variant="body1" sx={{ fontSize: '1.1rem' }}>{result.executive_summary}</Typography>
+                                    <Box sx={{ mt: 4, display: 'flex', alignItems: 'center', p: 2, backgroundColor: '#f5f5f5', borderRadius: 2 }}>
+                                        <Avatar sx={{ bgcolor: 'primary.main', mr: 2, width: 56, height: 56 }}><MdCorporateFare size={32} /></Avatar>                                        <Box>
+                                            <Typography variant="body2" color="text.secondary">Identified NGO Type</Typography>
+                                            <Typography variant="h5" sx={{ fontWeight: 'bold' }}>{getNgoType(country)}</Typography>
+                                        </Box>
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                        <Grid item xs={12} lg={5}>
+                            <Card sx={{ height: '100%', boxShadow: 3 }}>
+                                <CardContent sx={{ p: 3 }}>
+                                    <Typography variant="h5" gutterBottom align="center">Compliance Status Breakdown</Typography>
+                                    <ResponsiveContainer width="100%" height={300}>
+                                        <PieChart>
+                                            <Pie data={pieChartData} cx="50%" cy="50%" labelLine={false} innerRadius={60} outerRadius={100} fill="#8884d8" dataKey="value" paddingAngle={5}>
+                                                {pieChartData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[entry.name]} />)}
+                                            </Pie>
+                                            <RechartsTooltip />
+                                            <Legend />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    </Grid>                </Box>
+            )}
+
+            {/* --- Tab 2: Clause Details --- */}
+            {tabIndex === 1 && (
+                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    {result.compliance_breakdown.map((item, index) => (
+                        <Card key={index} variant="outlined" sx={{ boxShadow: 2 }}>
+                            <CardContent sx={{ p: 3 }}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
+                                    <Typography variant="body2" color="text.secondary">Area: {item.area}</Typography>
+                                    {getStatusChip(item.status)}
+                                </Box>
+                                <Typography variant="h6" component="p" sx={{ mb: 2 }}>{item.area}</Typography>
+                                
+                                {/* Analysis Section */}
+                                <Box sx={{ p: 2, backgroundColor: '#f8f9fa', borderRadius: 1, mb: 2, borderLeft: '4px solid #6c757d' }}>
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Analysis:</Typography>
+                                    <Typography variant="body2">{item.analysis}</Typography>
+                                </Box>
+
+                                {/* Recommendation Section - Only show if there's a meaningful recommendation */}
+                                {item.recommendation && item.recommendation.trim() && item.recommendation !== "None" && item.recommendation !== "null" && (
+                                    <Box sx={{ p: 2, backgroundColor: '#e3f2fd', borderRadius: 1, borderLeft: '4px solid #1976d2' }}>
+                                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>AI Recommendation:</Typography>
+                                        <Typography variant="body2">{item.recommendation}</Typography>
+                                    </Box>
+                                )}
+                            </CardContent>
+                        </Card>
+                    ))}
+                </Box>
+            )}
+
+            {/* --- Tab 3: Compliance Calendar --- */}
+            {tabIndex === 2 && (
+                <Box>
+                     <Card sx={{ boxShadow: 3 }}>
+                        <CardContent sx={{ p: 3 }}>
+                            <Typography variant="h5" gutterBottom>Upcoming Compliance Deadlines</Typography>
+                            <Typography variant="body1" color="text.secondary" sx={{mb: 3}}>Based on your NGO type and jurisdiction, here are key upcoming dates.</Typography>
+                            <Grid container spacing={3}>
+                                {mockDashboardData.deadlines.map((deadline, index) => (
+                                    <Grid item xs={12} sm={6} md={4} key={index}>
+                                        <Paper variant="outlined" sx={{ p: 3, textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                            <Typography variant="h4" color="primary" sx={{ fontWeight: 'bold' }}>{new Date(deadline.date).toLocaleDateString('en-US', { day: '2-digit' })}</Typography>
+                                            <Typography variant="h6">{new Date(deadline.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</Typography>
+                                            <Typography variant="body1" sx={{ mt: 1.5, flexGrow: 1 }}>{deadline.event}</Typography>
+                                        </Paper>
+                                    </Grid>
+                                ))}
+                            </Grid>
+                        </CardContent>
+                    </Card>
+                </Box>
+            )}
+        </Paper>
+    );
+};
+
+export default ComplianceDashboard;

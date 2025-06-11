@@ -20,6 +20,7 @@ A comprehensive web application that analyzes NGO policy documents for regulator
 ## 🏗️ Architecture
 
 ### Frontend
+
 - **React 18** with Vite for fast development
 - **Material-UI (MUI)** for modern, responsive design
 - **PDF.js** for client-side PDF text extraction
@@ -27,6 +28,7 @@ A comprehensive web application that analyzes NGO policy documents for regulator
 - **React Icons** for beautiful iconography
 
 ### Backend
+
 - **AWS Lambda** serverless function
 - **Python 3.9+** with compliance analysis logic
 - **API Gateway** for RESTful API endpoints
@@ -35,6 +37,7 @@ A comprehensive web application that analyzes NGO policy documents for regulator
 ## 🛠️ Installation & Setup
 
 ### Prerequisites
+
 - Node.js 18+ and npm
 - Python 3.9+
 - AWS CLI configured (for backend deployment)
@@ -78,12 +81,14 @@ serverless deploy
 4. **Review Results**: View compliance score, detailed breakdown, and recommendations
 
 ### Supported File Types
+
 - **PDF**: Automatically extracts text using PDF.js
 - **DOCX**: Microsoft Word documents
 - **TXT**: Plain text files
 - **ZIP**: Archive files containing multiple documents
 
 ### Supported Regions
+
 - 🇮🇳 India
 - 🇺🇸 United States
 - 🇪🇺 European Union
@@ -93,6 +98,7 @@ serverless deploy
 ## 🔧 Configuration
 
 ### Environment Variables
+
 Create a `.env` file in the root directory:
 
 ```env
@@ -105,6 +111,7 @@ API_GATEWAY_URL=https://your-api-gateway-url/analyze
 ```
 
 ### Backend Configuration
+
 Update `serverless.yml` for your AWS configuration:
 
 ```yaml
@@ -122,6 +129,7 @@ provider:
 Analyzes a policy document for compliance.
 
 **Request Body:**
+
 ```json
 {
   "policy_document": "base64_encoded_content",
@@ -130,6 +138,7 @@ Analyzes a policy document for compliance.
 ```
 
 **Response:**
+
 ```json
 {
   "compliance_score": 85,
@@ -149,25 +158,30 @@ Analyzes a policy document for compliance.
 ## 🧪 Testing
 
 ### Frontend Testing
+
 ```bash
 cd ngo-compliance-ui
 npm run test
 ```
 
 ### Backend Testing
+
 ```bash
 # Test with sample documents
 python -m pytest tests/
 ```
 
 ### Manual Testing
+
 Use the provided test files:
+
 - `test-policy-compliant.txt` - High compliance score
 - `test-policy-non-compliant.txt` - Low compliance score
 
 ## 🚀 Deployment
 
 ### Frontend Deployment (Netlify/Vercel)
+
 ```bash
 cd ngo-compliance-ui
 npm run build
@@ -175,6 +189,7 @@ npm run build
 ```
 
 ### Backend Deployment (AWS)
+
 ```bash
 serverless deploy --stage production
 ```
@@ -201,6 +216,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🛠️ Tech Stack
 
 **Frontend:**
+
 - React 18.3.1
 - Material-UI (MUI)
 - Vite
@@ -208,12 +224,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - React Router
 
 **Backend:**
+
 - Python 3.9+
 - AWS Lambda
 - API Gateway
 - Serverless Framework
 
 **Tools:**
+
 - Git & GitHub
 - AWS CLI
 - npm/yarn

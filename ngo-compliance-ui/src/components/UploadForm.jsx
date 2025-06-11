@@ -71,7 +71,8 @@ const UploadForm = ({
         fileContent = await file.text();
       } else if (
         file.type ===
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"      ) {
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ) {
         // For DOCX files, we'll read as text for now
         // You might want to use a library like mammoth.js for better extraction
         fileContent = await file.text();
@@ -86,7 +87,7 @@ const UploadForm = ({
           "No text content found in the file. Please check if the file contains readable text."
         );
       }
-      
+
       // Encode the file content as base64
       const base64Content = btoa(unescape(encodeURIComponent(fileContent)));
 
@@ -104,10 +105,11 @@ const UploadForm = ({
           policy_document: base64Content,
           country: country,
         }),
-      });      if (!response.ok) {
+      });
+      if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const result = await response.json();
       onAnalysisSuccess(result, country);
     } catch (error) {
